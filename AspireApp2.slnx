@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Solution>
+  <Project Path="POSSystem.Domain/POSSystem.Domain.csproj" />
+  <Project Path="POSSystem.Infrastructure/POSSystem.Infrastructure.csproj" />
+  <Project Path="POSSystem.UI.Web/POSSystem.UI.Web.csproj" />
+  <Project Path="POSSystem.Orchestration/POSSystem.Orchestration.csproj" />
+  <Project Path="POSSystem.Services.Product/POSSystem.Services.Product.csproj" />
+  <Project Path="POSSystem.Services.Inventory/POSSystem.Services.Inventory.csproj" />
+  <Project Path="POSSystem.Services.Order/POSSystem.Services.Order.csproj" />
+  <Project Path="POSSystem.Services.Customer/POSSystem.Services.Customer.csproj" />
+  <Project Path="POSSystem.Services.Payment/POSSystem.Services.Payment.csproj" />
+  <Project Path="POSSystem.Services.Product.Tests/POSSystem.Services.Product.Tests.csproj" />
+</Solution>
+

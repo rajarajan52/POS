@@ -1,0 +1,26 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.5.4">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AspireUseCliBundle>true</AspireUseCliBundle>
+    <UserSecretsId>2ee486a1-4f4b-41c1-aa72-3cdf1b17b2bc</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\POSSystem.Services.Product\POSSystem.Services.Product.csproj" />
+    <ProjectReference Include="..\POSSystem.Services.Inventory\POSSystem.Services.Inventory.csproj" />
+    <ProjectReference Include="..\POSSystem.Services.Order\POSSystem.Services.Order.csproj" />
+    <ProjectReference Include="..\POSSystem.Services.Customer\POSSystem.Services.Customer.csproj" />
+    <ProjectReference Include="..\POSSystem.Services.Payment\POSSystem.Services.Payment.csproj" />
+    <ProjectReference Include="..\POSSystem.UI.Web\POSSystem.UI.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Redis" Version="13.5.4" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.11" />
+  </ItemGroup>
+
+</Project>

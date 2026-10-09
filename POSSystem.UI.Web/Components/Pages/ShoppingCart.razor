@@ -1,0 +1,136 @@
+@page "/cart"
+@rendermode InteractiveServer
+@inject PosCartService CartService
+@inject PosCheckoutService CheckoutService
+@inject NavigationManager Navigation
+
+<PageTitle>Shopping Cart - POS</PageTitle>
+
+<div class="container-fluid mt-4">
+    <h2>Shopping Cart</h2>
+
+    @if (!CartService.GetItems().Any())
+    {
+        <div class="alert alert-info">Your cart is empty</div>
+    }
+    else
+    {
+        <div class="table-responsive mb-4">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Product</th>
+                        <th class="text-right">Price</th>
+                        <th class="text-center">Quantity</th>
+                        <th class="text-right">Total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in CartService.GetItems())
+                    {
+                        <tr>
+                            <td>@item.ProductName</td>
+                            <td class="text-right">${@item.UnitPrice:F2}</td>
+                            <td class="text-center">
+                                <input type="number" class="form-control form-control-sm" style="width: 80px;" 
+                                       value="@item.Quantity" 
+                                       @onchange="@((ChangeEventArgs e) => CartService.UpdateQuantity(item.ProductId, int.Parse(e.Value?.ToString() ?? "1")))" />
+                            </td>
+                            <td class="text-right font-weight-bold">${@item.Total:F2}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" @onclick="() => CartService.RemoveItem(item.ProductId)">
+                                    Remove
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 offset-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <strong>Subtotal:</strong>
+                            <span>${@CartService.GetSubtotal():F2}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <strong>Tax:</strong>
+                            <span>$@taxAmount:F2</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <strong>Total:</strong>
+                            <span class="h4 text-success">${@(CartService.GetSubtotal() + taxAmount):F2}</span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Customer ID:</label>
+                            <input type="text" class="form-control" @bind="customerId" placeholder="Enter customer ID or leave blank" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Payment Method:</label>
+                            <select class="form-control" @bind="selectedPaymentMethod">
+                                <option value="@PaymentMethod.Cash">Cash</option>
+                                <option value="@PaymentMethod.CreditCard">Credit Card</option>
+                                <option value="@PaymentMethod.DebitCard">Debit Card</option>
+                                <option value="@PaymentMethod.MobileWallet">Mobile Wallet</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-success w-100 btn-lg" @onclick="Checkout" disabled="@isProcessing">
+                            @if (isProcessing)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                                <span>Processing...</span>
+                            }
+                            else
+                            {
+                                <span>Complete Purchase</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private string customerId = "";
+    private PaymentMethod selectedPaymentMethod = PaymentMethod.Cash;
+    private decimal taxAmount = 0.10m;
+    private bool isProcessing = false;
+
+    private async Task Checkout()
+    {
+        isProcessing = true;
+        try
+        {
+            if (string.IsNullOrEmpty(customerId))
+            {
+                customerId = Guid.NewGuid().ToString();
+            }
+
+            var result = await CheckoutService.CheckoutAsync(
+                Guid.Parse(customerId),
+                CartService.GetItems().ToList(),
+                selectedPaymentMethod,
+                taxAmount * CartService.GetSubtotal());
+
+            if (result.Success)
+            {
+                CartService.Clear();
+                Navigation.NavigateTo($"/receipt/{result.ReceiptNumber}");
+            }
+            else
+            {
+                // Handle error
+            }
+        }
+        finally
+        {
+            isProcessing = false;
+        }
+    }
+}

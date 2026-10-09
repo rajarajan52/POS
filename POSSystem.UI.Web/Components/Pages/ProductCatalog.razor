@@ -1,0 +1,78 @@
+@page "/products"
+@rendermode InteractiveServer
+@inject ProductServiceClient ProductService
+@inject PosCartService CartService
+@inject NavigationManager Navigation
+
+<PageTitle>Products - POS</PageTitle>
+
+<div class="container-fluid mt-4">
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <h2>Product Catalog</h2>
+        </div>
+    </div>
+
+    @if (products == null)
+    {
+        <div class="alert alert-info">Loading products...</div>
+    }
+    else if (!products.Any())
+    {
+        <div class="alert alert-warning">No products available</div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var product in products)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">@product.Name</h5>
+                            <p class="card-text text-muted">@product.Description</p>
+                            <h4 class="card-text text-success">${@product.Price:F2}</h4>
+                            <p class="card-text"><small>SKU: @product.Sku</small></p>
+                        </div>
+                        <div class="card-footer">
+                            <input type="number" min="1" max="100" class="form-control form-control-sm mb-2" @bind="quantities[product.Id]" placeholder="Quantity" />
+                            <button class="btn btn-primary w-100 btn-sm" @onclick="() => AddToCart(product)">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<ProductDto>? products;
+    private Dictionary<Guid, int> quantities = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            products = (await ProductService.GetAllProductsAsync()).ToList();
+            foreach (var product in products)
+            {
+                quantities[product.Id] = 1;
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle error
+        }
+    }
+
+    private void AddToCart(ProductDto product)
+    {
+        if (quantities.TryGetValue(product.Id, out var quantity) && quantity > 0)
+        {
+            CartService.AddItem(product, quantity);
+            quantities[product.Id] = 1;
+        }
+    }
+}
